@@ -47,7 +47,9 @@ ENV CLASSPATH="/home/app/entrypoint-1.0/lib/*"
 
 ENV fprocess="java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap com.openfaas.entrypoint.App"
 EXPOSE 8080
+RUN setsid fwatchdog < /dev/null &> app.log & \
+	&& sleep 10 \
+	&& get pid \
+	&& dump \
 
 HEALTHCHECK --interval=5s CMD [ -e /tmp/.lock ] || exit 1
-
-CMD ["fwatchdog"]
