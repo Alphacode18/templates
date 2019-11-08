@@ -1,3 +1,5 @@
+# syntax = docker/dockerfile:experimental
+
 FROM pfelipefeitosa/criu:alpine-v3.13 as criu
 
 FROM openfaas/of-watchdog:0.7.2 as watchdog
@@ -40,6 +42,7 @@ RUN chmod +x /usr/bin/fwatchdog
 WORKDIR /home/app
 COPY --from=builder /home/app/entrypoint/build/distributions/entrypoint-1.0.zip ./entrypoint-1.0.zip
 RUN unzip ./entrypoint-1.0.zip
+RUN rm ./entrypoint-1.0.zip
 
 ENV upstream_url="http://127.0.0.1:8082"
 ENV mode="http"
@@ -47,9 +50,9 @@ ENV CLASSPATH="/home/app/entrypoint-1.0/lib/*"
 
 ENV fprocess="java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap com.openfaas.entrypoint.App"
 EXPOSE 8080
-RUN setsid fwatchdog < /dev/null &> app.log & \
-	&& sleep 10 \
-	&& get pid \
-	&& dump \
+
+RUN --security=insecure (setsid fwatchdog < /dev/null &> app.log &) && sleep 10 && (criu dump -t $(pgrep fwatchdog) -o dump.log -v4) && (echo OK)
 
 HEALTHCHECK --interval=5s CMD [ -e /tmp/.lock ] || exit 1
+
+CMD criu restore -d -v3 -o restore.log && echo OK && tail -f /dev/null
