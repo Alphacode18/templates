@@ -44,15 +44,21 @@ COPY --from=builder /home/app/entrypoint/build/distributions/entrypoint-1.0.zip 
 RUN unzip ./entrypoint-1.0.zip
 RUN rm ./entrypoint-1.0.zip
 
+COPY warmup.sh .
+RUN chmod +x warmup.sh
+RUN apk --no-cache add curl
+
 ENV upstream_url="http://127.0.0.1:8082"
 ENV mode="http"
 ENV CLASSPATH="/home/app/entrypoint-1.0/lib/*"
+ENV WARM_REQ="YES"
+ENV HTTP_SERVER_ADDRESS="localhost:8082"
 
-ENV fprocess="java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap com.openfaas.entrypoint.App"
+ENV fprocess="criu restore -d -v3 -o restore.log"
 EXPOSE 8080
 
-RUN --security=insecure (setsid fwatchdog < /dev/null &> app.log &) && sleep 10 && (criu dump -t $(pgrep fwatchdog) -o dump.log -v4) && (echo OK)
+RUN --security=insecure (setsid java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap com.openfaas.entrypoint.App < /dev/null &> app.log &) && ./warmup.sh && (criu dump -t $(pgrep java) -o dump.log -v4)
 
 HEALTHCHECK --interval=5s CMD [ -e /tmp/.lock ] || exit 1
 
-CMD criu restore -d -v3 -o restore.log && echo OK && tail -f /dev/null
+CMD fwatchdog || tail -f /dev/null
