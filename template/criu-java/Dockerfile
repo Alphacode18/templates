@@ -54,11 +54,11 @@ ENV CLASSPATH="/home/app/entrypoint-1.0/lib/*"
 ENV WARM_REQ="YES"
 ENV HTTP_SERVER_ADDRESS="localhost:8082"
 
-ENV fprocess="criu restore -d -v3 -o restore.log"
+ENV fprocess="java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap com.openfaas.entrypoint.App"
 EXPOSE 8080
 
-RUN --security=insecure (setsid java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap com.openfaas.entrypoint.App < /dev/null &> app.log &) && ./warmup.sh && (criu dump -t $(pgrep java) -o dump.log -v4)
+RUN --security=insecure (setsid fwatchdog < /dev/null &> app.log &) && ./warmup.sh && (criu dump -t $(pgrep fwatchdog) -o dump.log -v3)
 
 HEALTHCHECK --interval=5s CMD [ -e /tmp/.lock ] || exit 1
 
-CMD fwatchdog || tail -f /dev/null
+CMD criu restore -d -v3 -o restore.log && tail -f /dev/null
