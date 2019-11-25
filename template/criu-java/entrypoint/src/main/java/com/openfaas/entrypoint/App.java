@@ -21,8 +21,11 @@ import com.sun.net.httpserver.Headers;
 import com.openfaas.model.*;
 
 public class App {
+    
+    public static long APP_STARTUP_TIME; 
 
     public static void main(String[] args) throws Exception {
+        App.APP_STARTUP_TIME = System.nanoTime();
         int port = 8082;
 
         IHandler handler = new com.openfaas.function.Handler();
@@ -109,6 +112,7 @@ public class App {
                 reqHeadersMap.put(header.getKey(), headerValues.get(0));
             }
         }
+        reqHeadersMap.put("X-App-Startup-Time", String.valueOf(App.APP_STARTUP_TIME));
         return reqHeadersMap;
     }
 
