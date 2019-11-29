@@ -61,4 +61,4 @@ RUN --security=insecure (setsid fwatchdog < /dev/null &> app.log &) && ./warmup.
 
 HEALTHCHECK --interval=5s CMD [ -e /tmp/.lock ] || exit 1
 
-CMD criu restore -d -v3 -o restore.log && tail -f /dev/null
+CMD criu restore -d -v3 && tail -f /dev/null
