@@ -65,9 +65,11 @@ public class App {
 
         @Override
         public void handle(HttpExchange t) throws IOException {
+            long requestArrivalTime = System.nanoTime();
             String requestBody = App.getRequestBody(t);
 
             Map<String, String> reqHeadersMap = App.getRequestHeaders(t);
+            reqHeadersMap.put("X-Request-Arrival-Time", String.valueOf(requestArrivalTime));
 
             IRequest req = new Request(requestBody, reqHeadersMap, t.getRequestURI().getRawQuery(),
                     t.getRequestURI().getPath());
