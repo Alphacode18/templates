@@ -2,7 +2,7 @@
 
 FROM pfelipefeitosa/criu:alpine-v3.13 as criu
 
-FROM openfaas/of-watchdog:0.7.2 as watchdog
+FROM pfelipefeitosa/of-watchdog:criu-light as watchdog
 
 FROM openjdk:8u212-jdk-alpine as builder
 
@@ -53,6 +53,8 @@ ENV mode="http"
 ENV CLASSPATH="/home/app/entrypoint-1.0/lib/*"
 ENV WARM_REQ="YES"
 ENV HTTP_SERVER_ADDRESS="localhost:8082"
+ENV criu_exec="true"
+ENV restore_log_path="./restore.log"
 
 ENV fprocess="java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap com.openfaas.entrypoint.App"
 EXPOSE 8080
