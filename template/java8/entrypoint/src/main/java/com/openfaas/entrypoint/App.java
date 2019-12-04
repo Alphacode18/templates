@@ -20,7 +20,10 @@ import com.openfaas.model.*;
 
 public class App {
 
+    public static long APP_STARTUP_TIME;
+    
     public static void main(String[] args) throws Exception {
+        App.APP_STARTUP_TIME = System.nanoTime();
         int port = 8082;
 
         IHandler handler = new com.openfaas.function.Handler();
@@ -42,6 +45,7 @@ public class App {
 
         @Override
         public void handle(HttpExchange t) throws IOException {
+            long requestArrivalTime = System.nanoTime();
             String requestBody = "";
             String method = t.getRequestMethod();
 
@@ -75,6 +79,8 @@ public class App {
             IRequest req = new Request(requestBody, reqHeadersMap,t.getRequestURI().getRawQuery(), t.getRequestURI().getPath());
             
             IResponse res = this.handler.Handle(req);
+            res.setHeader("X-Request-Arrival-Time", String.valueOf(requestArrivalTime));
+            res.setHeader("X-App-Startup-Time", String.valueOf(App.APP_STARTUP_TIME));
 
             String response = res.getBody();
             byte[] bytesOut = response.getBytes("UTF-8");

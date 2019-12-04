@@ -69,12 +69,13 @@ public class App {
             String requestBody = App.getRequestBody(t);
 
             Map<String, String> reqHeadersMap = App.getRequestHeaders(t);
-            reqHeadersMap.put("X-Request-Arrival-Time", String.valueOf(requestArrivalTime));
 
             IRequest req = new Request(requestBody, reqHeadersMap, t.getRequestURI().getRawQuery(),
                     t.getRequestURI().getPath());
 
             IResponse res = this.handler.Handle(req);
+            res.setHeader("X-Request-Arrival-Time", String.valueOf(requestArrivalTime));
+            res.setHeader("X-App-Startup-Time", String.valueOf(App.APP_STARTUP_TIME));
 
             App.setResponse(t, res);
         }
@@ -114,7 +115,6 @@ public class App {
                 reqHeadersMap.put(header.getKey(), headerValues.get(0));
             }
         }
-        reqHeadersMap.put("X-App-Startup-Time", String.valueOf(App.APP_STARTUP_TIME));
         return reqHeadersMap;
     }
 

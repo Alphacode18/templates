@@ -10,9 +10,6 @@ public class Handler implements com.openfaas.model.IHandler {
 
     public IResponse Handle(IRequest req) {
         Response res = new Response();
-        res.setBody("AppStartupTime: " + req.getHeader("X-App-Startup-Time")
-                + System.lineSeparator() + "RequestArrivalTime: "
-                + req.getHeader("X-Request-Arrival-Time") + System.lineSeparator());
         return res;
     }
 
