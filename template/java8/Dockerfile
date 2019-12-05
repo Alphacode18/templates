@@ -33,7 +33,7 @@ RUN chmod +x /usr/bin/fwatchdog
 RUN addgroup -S app && adduser -S -g app app
 WORKDIR /home/app
 COPY --from=builder /home/app/entrypoint/build/distributions/entrypoint-1.0.zip ./entrypoint-1.0.zip
-COPY --from=builder /home/app/monotonic
+COPY --from=builder /home/app/monotonic .
 RUN unzip ./entrypoint-1.0.zip
 
 RUN chown -R app /home/app
