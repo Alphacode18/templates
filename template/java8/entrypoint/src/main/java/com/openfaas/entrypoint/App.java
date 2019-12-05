@@ -79,8 +79,8 @@ public class App {
             IRequest req = new Request(requestBody, reqHeadersMap,t.getRequestURI().getRawQuery(), t.getRequestURI().getPath());
             
             IResponse res = this.handler.Handle(req);
-            res.setHeader("X-Request-Arrival-Time", String.valueOf(requestArrivalTime));
-            res.setHeader("X-App-Startup-Time", String.valueOf(App.APP_STARTUP_TIME));
+            res.setHeader("X-Request-Arrival-Timestamp", String.valueOf(requestArrivalTime));
+            res.setHeader("X-App-Startup-Timestamp", String.valueOf(App.APP_STARTUP_TIME));
 
             String response = res.getBody();
             byte[] bytesOut = response.getBytes("UTF-8");

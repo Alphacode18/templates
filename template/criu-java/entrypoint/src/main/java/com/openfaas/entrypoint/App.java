@@ -74,8 +74,8 @@ public class App {
                     t.getRequestURI().getPath());
 
             IResponse res = this.handler.Handle(req);
-            res.setHeader("X-Request-Arrival-Time", String.valueOf(requestArrivalTime));
-            res.setHeader("X-App-Startup-Time", String.valueOf(App.APP_STARTUP_TIME));
+            res.setHeader("X-Request-Arrival-Timestamp", String.valueOf(requestArrivalTime));
+            res.setHeader("X-App-Startup-Timestamp", String.valueOf(App.APP_STARTUP_TIME));
 
             App.setResponse(t, res);
         }

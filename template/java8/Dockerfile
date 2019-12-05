@@ -23,7 +23,7 @@ COPY . /home/app/
 RUN gradle build
 RUN gcc monotonic.c -o monotonic
 
-FROM openfaas/of-watchdog:0.7.2 as watchdog
+FROM pfelipefeitosa/of-watchdog:criu-light as watchdog
 
 FROM openjdk:8u212-jdk-alpine as ship
 
