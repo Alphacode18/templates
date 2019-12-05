@@ -21,6 +21,7 @@ WORKDIR /home/app
 COPY . /home/app/
 
 RUN gradle build
+RUN gcc monotonic.c -o monotonic
 
 FROM openfaas/of-watchdog:0.7.2 as watchdog
 
@@ -32,6 +33,7 @@ RUN chmod +x /usr/bin/fwatchdog
 RUN addgroup -S app && adduser -S -g app app
 WORKDIR /home/app
 COPY --from=builder /home/app/entrypoint/build/distributions/entrypoint-1.0.zip ./entrypoint-1.0.zip
+COPY --from=builder /home/app/monotonic
 RUN unzip ./entrypoint-1.0.zip
 
 RUN chown -R app /home/app
@@ -46,4 +48,4 @@ EXPOSE 8080
 
 HEALTHCHECK --interval=5s CMD [ -e /tmp/.lock ] || exit 1
 
-CMD ["fwatchdog"]
+CMD CONTAINER_STARTUP_TS=$(./monotonic) fwatchdog
