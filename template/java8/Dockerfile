@@ -1,6 +1,6 @@
 FROM openjdk:8u212-jdk-alpine as builder
 
-RUN apk --no-cache add curl \
+RUN apk --no-cache add curl build-base \
     && addgroup -S app && adduser -S -g app app \
     && mkdir -p /opt/ && cd /opt/ \
     && echo "Downloading gradle.." \
