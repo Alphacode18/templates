@@ -4,19 +4,19 @@ FROM pfelipefeitosa/criu:alpine-v3.13 as criu
 
 FROM pfelipefeitosa/of-watchdog:criu-light as watchdog
 
-FROM openjdk:8u212-jdk-alpine as builder
+FROM openjdk:13-jdk-alpine3.10 as builder
 
 RUN apk --no-cache add curl \
     && addgroup -S app && adduser -S -g app app \
     && mkdir -p /opt/ && cd /opt/ \
     && echo "Downloading gradle.." \
-    && curl -sSfL https://services.gradle.org/distributions/gradle-5.5.1-bin.zip -o gradle-bin.zip \
+    && curl -sSfL https://services.gradle.org/distributions/gradle-6.0-bin.zip -o gradle-bin.zip \
     && unzip gradle-bin.zip -d /opt/ \
     && rm gradle-bin.zip \
     && apk del curl
 
 # Export some environment variables
-ENV GRADLE_HOME=/opt/gradle-5.5.1/
+ENV GRADLE_HOME=/opt/gradle-6.0/
 ENV PATH=$PATH:$GRADLE_HOME/bin
 
 RUN mkdir -p /home/app/libs
@@ -28,7 +28,7 @@ COPY . /home/app/
 
 RUN gradle build
 
-FROM openjdk:8u212-jdk-alpine as ship
+FROM openjdk:13-jdk-alpine3.10 as ship
 
 COPY --from=criu /usr/local/sbin/criu /usr/local/sbin/criu
 COPY --from=criu /usr/lib/libprotobuf-c.so.1 /usr/lib/libprotobuf-c.so.1
