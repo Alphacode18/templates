@@ -48,6 +48,8 @@ COPY warmup.sh .
 RUN chmod +x warmup.sh
 RUN apk --no-cache add curl
 
+COPY resources/* .
+
 ENV upstream_url="http://127.0.0.1:8082"
 ENV mode="http"
 ENV CLASSPATH="/home/app/entrypoint-1.0/lib/*"
