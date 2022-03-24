@@ -48,7 +48,7 @@ COPY warmup.sh .
 RUN chmod +x warmup.sh
 RUN apk --no-cache add curl
 
-COPY resources/* .
+COPY resource.* .
 
 ENV upstream_url="http://127.0.0.1:8082"
 ENV mode="http"
