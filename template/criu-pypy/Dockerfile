@@ -38,9 +38,6 @@ RUN apk --no-cache add curl
 
 WORKDIR /home/app/
 
-#configure WSGI server and healthcheck
-ENV fprocess="python index.py"
-
 ENV cgi_headers="true"
 ENV mode="http"
 ENV upstream_url="http://127.0.0.1:5000"
