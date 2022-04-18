@@ -21,12 +21,12 @@ import com.sun.net.httpserver.Headers;
 import com.openfaas.model.*;
 
 public class App {
-    
-    public static long APP_STARTUP_TIME; 
+
+    public static long APP_STARTUP_TIME;
 
     public static void main(String[] args) throws Exception {
         App.APP_STARTUP_TIME = System.nanoTime();
-        int port = 8082;
+        int port = 8080;
 
         IHandler handler = new com.openfaas.function.Handler();
 
@@ -36,10 +36,10 @@ public class App {
 
         server.createContext("/", invokeHandler);
         server.createContext("/warmup", warmupHandler);
+        server.createContext("/_/health", warmupHandler);
         server.setExecutor(null); // creates a default executor
         server.start();
     }
-
 
     static class WarmupHandler implements HttpHandler {
         IHandler handler;
