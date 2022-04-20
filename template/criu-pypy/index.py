@@ -25,7 +25,6 @@ def fix_transfer_encoding():
         request.environ["wsgi.input_terminated"] = True
 
 @app.route("/", defaults={"path": ""}, methods=["POST", "GET"])
-@app.route("/<path:path>", methods=["POST", "GET"])
 def main_route(path):
     raw_body = os.getenv("RAW_BODY", "false")
 
@@ -37,17 +36,9 @@ def main_route(path):
     ret = handler.handle(request.get_data(as_text=as_text))
     return ret
 
-@app.route("/warmup", methods=["POST"])
-def warmup():
-    raw_body = os.getenv("RAW_BODY", "false")
-
-    as_text = True
-
-    if is_true(raw_body):
-        as_text = False
-    
-    ret = request.get_data(as_text=as_text)
-    return ret
+@app.route("/_/health", methods=["POST", "GET"])
+def noop():
+    return ('', 200)
 
 if __name__ == '__main__':
-    serve(app, host='0.0.0.0', port=5000)
+    serve(app, host='0.0.0.0', port=8080)
