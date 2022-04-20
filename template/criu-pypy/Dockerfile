@@ -27,8 +27,6 @@ RUN pypy3 -m pip install --user -r requirements.txt
 
 WORKDIR /home/app/
 
-COPY warmup.sh .
-RUN chmod +x warmup.sh
 RUN apk --no-cache add curl
 
 ENV fprocess="pypy3 index.py"
