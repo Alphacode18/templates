@@ -27,7 +27,7 @@ RUN pypy3 -m pip install --user -r requirements.txt
 
 WORKDIR /home/app/
 
-COPY resource.* .
+COPY resource .
 
 RUN apk --no-cache add curl
 
