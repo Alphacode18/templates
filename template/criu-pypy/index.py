@@ -8,9 +8,10 @@ import os
 
 app = Flask(__name__)
 
-# distutils.util.strtobool() can throw an exception
+
 def is_true(val):
     return len(val) > 0 and val.lower() == "true" or val == "1"
+
 
 @app.before_request
 def fix_transfer_encoding():
@@ -24,6 +25,7 @@ def fix_transfer_encoding():
     if transfer_encoding == u"chunked":
         request.environ["wsgi.input_terminated"] = True
 
+
 @app.route("/", defaults={"path": ""}, methods=["POST", "GET"])
 def main_route(path):
     raw_body = os.getenv("RAW_BODY", "false")
@@ -32,13 +34,18 @@ def main_route(path):
 
     if is_true(raw_body):
         as_text = False
-    
-    ret = handler.handle(request.get_data(as_text=as_text))
+
+    mutability = float(request.args.get("mutability"))
+
+    ret = handler.handle(mutability)
+
     return ret
+
 
 @app.route("/_/health", methods=["POST", "GET"])
 def noop():
     return ('', 200)
+
 
 if __name__ == '__main__':
     serve(app, host='0.0.0.0', port=8080)

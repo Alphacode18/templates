@@ -27,10 +27,6 @@ RUN pypy3 -m pip install --user -r requirements.txt
 
 WORKDIR /home/app/
 
-COPY resource .
-
-RUN apk --no-cache add curl
-
 ENV fprocess="pypy3 index.py"
 ENV cgi_headers="true"
 ENV upstream_url="http://127.0.0.1:8080"
