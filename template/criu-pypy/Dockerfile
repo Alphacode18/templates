@@ -25,7 +25,17 @@ RUN pypy3 -m pip install -r requirements.txt
 WORKDIR /home/app/function/
 RUN pypy3 -m pip install --user -r requirements.txt
 
+ARG TEST_COMMAND=tox
+ARG TEST_ENABLED=true
+RUN if [ "$TEST_ENABLED" == "false" ]; then \
+    echo "skipping tests";\
+    else \
+    eval "$TEST_COMMAND"; \
+    fi
+
 WORKDIR /home/app/
+
+COPY function/resource .
 
 ENV fprocess="pypy3 index.py"
 ENV cgi_headers="true"
