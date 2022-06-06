@@ -35,7 +35,8 @@ RUN if [ "$TEST_ENABLED" == "false" ]; then \
 
 WORKDIR /home/app/
 
-COPY function/resource .
+RUN mkdir resource
+COPY function/resource resource/
 
 ENV fprocess="pypy3 index.py"
 ENV cgi_headers="true"
