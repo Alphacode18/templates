@@ -11,10 +11,10 @@ RUN apt install python3 -y
 
 RUN apt install rr -y
 
-RUN python3 -m pip install -r requirements.txt
+RUN pip install -r requirements.txt
 
 WORKDIR /home/app/function/
-RUN pypy3 -m pip install --user -r requirements.txt
+RUN pip install --user -r requirements.txt
 
 ARG TEST_COMMAND=tox
 ARG TEST_ENABLED=true
@@ -38,4 +38,4 @@ EXPOSE 8080
 
 HEALTHCHECK --interval=5s CMD [ -e /tmp/.lock ]
 
-CMD ["pypy3", "index.py"]
+CMD ["python3", "index.py"]
