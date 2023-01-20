@@ -5,7 +5,11 @@ COPY . /home/app/
 
 ENV PATH=$PATH:/home/app/.local/bin
 
-RUN apt update && apt install python3 rr
+RUN apt update
+
+RUN apt install python3 -y
+
+RUN apt install rr -y
 
 RUN python3 -m pip install -r requirements.txt
 
