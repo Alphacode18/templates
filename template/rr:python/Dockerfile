@@ -5,11 +5,11 @@ COPY . /home/app/
 
 ENV PATH=$PATH:/home/app/.local/bin
 
-RUN apt update
+RUN apt-get update
 
-RUN apt install python3 -y
+RUN apt-get install -y python3 curl rr
 
-RUN apt install rr -y
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py && rm get-pip.py
 
 RUN pip install -r requirements.txt
 
