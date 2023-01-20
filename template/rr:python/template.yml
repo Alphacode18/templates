@@ -1,2 +1,2 @@
 language: rr:python
-fprocess: pypy3 index.py
+fprocess: python3 index.py

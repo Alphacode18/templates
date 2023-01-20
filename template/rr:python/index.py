@@ -35,7 +35,7 @@ def main_route(path):
     if is_true(raw_body):
         as_text = False
 
-    ret = handler.handle()
+    ret = handler.handle(request.get_data(as_text=as_text))
 
     return ret
 
