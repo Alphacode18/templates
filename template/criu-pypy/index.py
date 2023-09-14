@@ -39,7 +39,24 @@ def main_route(path):
 
     ret = handler.handle(mutability)
 
+    with open("requestLog.txt", "a") as fp:
+        fp.write(str(ret['server_time']) + "\n")
+
     return ret
+
+@app.route("/snapshot", defaults={"path": ""}, methods=["POST", "GET"])
+def snapshot_route(path):
+    raw_body = os.getenv("RAW_BODY", "false")
+
+    as_text = True
+
+    if is_true(raw_body):
+        as_text = False
+
+    with open("requestLog.txt", "a") as fp:
+        fp.write("-1\n")
+
+    return ('', 200)
 
 
 @app.route("/_/health", methods=["POST", "GET"])
