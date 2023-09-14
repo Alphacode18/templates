@@ -67,7 +67,6 @@ EXPOSE 8080
 HEALTHCHECK --interval=5s CMD [ -e /tmp/.lock ] || exit 1
 
 COPY function-service/ ./service
-COPY ./function/resource.mustache .
 # CMD criu restore -d -v3 && tail -f /dev/null
 # CMD python3 service/main.py
 CMD ./warmup.sh
