@@ -13,6 +13,9 @@ import java.io.UnsupportedEncodingException;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,12 +24,12 @@ import com.sun.net.httpserver.Headers;
 import com.openfaas.model.*;
 
 public class App {
-    
-    public static long APP_STARTUP_TIME; 
+
+    public static long APP_STARTUP_TIME;
 
     public static void main(String[] args) throws Exception {
         App.APP_STARTUP_TIME = System.nanoTime();
-        int port = 8082;
+        int port = 8080;
 
         IHandler handler = new com.openfaas.function.Handler();
 
@@ -36,10 +39,10 @@ public class App {
 
         server.createContext("/", invokeHandler);
         server.createContext("/warmup", warmupHandler);
+        server.createContext("/_/health", warmupHandler);
         server.setExecutor(null); // creates a default executor
         server.start();
     }
-
 
     static class WarmupHandler implements HttpHandler {
         IHandler handler;
@@ -73,11 +76,24 @@ public class App {
             IRequest req = new Request(requestBody, reqHeadersMap, t.getRequestURI().getRawQuery(),
                     t.getRequestURI().getPath());
 
+            long handleStartTime = System.nanoTime();
             IResponse res = this.handler.Handle(req);
+            long latency = System.nanoTime() - handleStartTime;
             res.setHeader("X-Request-Arrival-Timestamp", String.valueOf(requestArrivalTime));
             res.setHeader("X-App-Startup-Timestamp", String.valueOf(App.APP_STARTUP_TIME));
 
             App.setResponse(t, res);
+
+            try {
+                String toWrite = res.getBody().split("took ")[1].split(" ms")[0] + "\n"; // String.format("%d\n",
+                                                                                         // latency / 1000)
+                Files.write(
+                        Paths.get("./requestLog.txt"),
+                        toWrite.getBytes(),
+                        StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                System.err.println("Could not write to file");
+            }
         }
     }
 
