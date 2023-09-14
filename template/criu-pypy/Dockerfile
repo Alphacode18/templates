@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:experimental
 
-FROM pfelipefeitosa/criu:alpine-v3.13 as criu
+FROM firebolt55439/criu:latest as criu
 
 FROM pfelipefeitosa/of-watchdog:criu-light as watchdog
 
@@ -14,13 +14,16 @@ ENV PATH=$PATH:/home/app/.local/bin
 COPY --from=criu /usr/local/sbin/criu /usr/local/sbin/criu
 COPY --from=criu /usr/lib/libprotobuf-c.so.1 /usr/lib/libprotobuf-c.so.1
 COPY --from=criu /usr/lib/libnl-3.so.200 /usr/lib/libnl-3.so.200
-COPY --from=criu /usr/lib/libnet.so.1 /usr/lib/libnet.so.1
+COPY --from=criu /usr/lib/libnet.so.* /usr/lib/
 RUN chmod +x /usr/local/sbin/criu
 
 COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
 RUN chmod +x /usr/bin/fwatchdog
 
 RUN pypy3 -m pip install -r requirements.txt
+
+COPY warmup.sh .
+RUN chmod a+x warmup.sh
 
 WORKDIR /home/app/function/
 RUN pypy3 -m pip install --user -r requirements.txt
@@ -47,4 +50,7 @@ EXPOSE 8080
 
 HEALTHCHECK --interval=5s CMD [ -e /tmp/.lock ]
 
-CMD ["pypy3", "index.py"]
+COPY function-service/ ./service
+# CMD criu restore -d -v3 && tail -f /dev/null
+# CMD python3 service/main.py
+CMD ./warmup.sh
