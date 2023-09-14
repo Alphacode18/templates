@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:experimental
 
-FROM pfelipefeitosa/criu:alpine-v3.13 as criu
+FROM firebolt55439/criu:latest as criu
 
 FROM pfelipefeitosa/of-watchdog:criu-light as watchdog
 
@@ -33,7 +33,7 @@ FROM openjdk:8u212-jdk-alpine as ship
 COPY --from=criu /usr/local/sbin/criu /usr/local/sbin/criu
 COPY --from=criu /usr/lib/libprotobuf-c.so.1 /usr/lib/libprotobuf-c.so.1
 COPY --from=criu /usr/lib/libnl-3.so.200 /usr/lib/libnl-3.so.200
-COPY --from=criu /usr/lib/libnet.so.1 /usr/lib/libnet.so.1
+COPY --from=criu /usr/lib/libnet.so.* /usr/lib/
 RUN chmod +x /usr/local/sbin/criu
 
 COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
@@ -46,23 +46,28 @@ RUN rm ./entrypoint-1.0.zip
 
 COPY warmup.sh .
 RUN chmod +x warmup.sh
-RUN apk --no-cache add curl
+RUN apk --no-cache add musl-dev linux-headers g++ openblas-dev
+RUN apk --no-cache add curl python3-dev
+RUN apk --no-cache add iptables
+RUN pip3 install requests minio numpy
 
-COPY resource.* .
-
-ENV upstream_url="http://127.0.0.1:8082"
+ENV upstream_url="http://127.0.0.1:8080"
 ENV mode="http"
 ENV CLASSPATH="/home/app/entrypoint-1.0/lib/*"
 ENV WARM_REQ="YES"
-ENV HTTP_SERVER_ADDRESS="localhost:8082"
+ENV HTTP_SERVER_ADDRESS="localhost:8080"
 ENV criu_exec="true"
 ENV restore_log_path="./restore.log"
 
 ENV fprocess="java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap com.openfaas.entrypoint.App"
 EXPOSE 8080
 
-RUN --security=insecure (setsid fwatchdog < /dev/null &> app.log &) && ./warmup.sh && (criu dump -t $(pgrep fwatchdog) -o dump.log -v3)
+# RUN --security=insecure (setsid java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap com.openfaas.entrypoint.App < /dev/null &> app.log &) && ./warmup.sh && (criu dump -t $(pgrep java) -o dump.log -v3)
 
 HEALTHCHECK --interval=5s CMD [ -e /tmp/.lock ] || exit 1
 
-CMD criu restore -d -v3 -o restore.log && tail -f /dev/null
+COPY function-service/ ./service
+COPY ./function/resource.mustache .
+# CMD criu restore -d -v3 && tail -f /dev/null
+# CMD python3 service/main.py
+CMD ./warmup.sh
